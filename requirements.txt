@@ -2,3 +2,5 @@ rasterio>=1.3
 numpy>=1.24
 matplotlib>=3.7
 owslib>=0.27
+earthengine-api>=0.1.390
+requests>=2.31
