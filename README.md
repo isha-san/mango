@@ -16,8 +16,10 @@ Milestone 1 in progress: building a data pipeline for model development.
 | Elevation (DEM) | Copernicus GLO-30/GLO-90 (AWS S3) | ✅ |
 | Elevation (DEM, Mexico) | INEGI CEM 3.0 (WCS) | ✅ (endpoint needs verification) |
 | Built-up area / urbanisation | GHSL R2023A (JRC) | ✅ |
-| Land cover | Dynamic World | — (deferred) |
-| Infrastructure barriers | OpenStreetMap, Global Dam Watch | — |
+| Land cover | ESA WorldCover 10 m (AWS S3) | ✅ |
+| Surface water / hydrology | JRC Global Surface Water (CloudFerro) | ✅ |
+| Infrastructure barriers (roads, levees, seawalls, aquaculture) | OpenStreetMap (Overpass API) | ✅ |
+| Upstream dam/reservoir barriers | Global Dam Watch | TODO |
 
 ## Setup
 
@@ -49,6 +51,29 @@ python fetch_dem.py --center -99.1 19.4 --buffer-km 20 --source copernicus --res
 The fetchers use cloud-native range requests (GDAL `/vsicurl/`) to read only
 the pixels covering the AOI — no full tile downloads.
 
+### Land cover
+
+`fetch_worldcover.py` fetches ESA WorldCover 10 m land cover from AWS S3 (same
+COG range-read pattern as Copernicus DEM — no full tile downloads). Includes a
+dedicated mangrove class (95) alongside cropland (40) and built-up (50) which
+are the primary barriers to landward migration.
+
+```bash
+python fetch_worldcover.py --center -90.5 20.0 --buffer-km 25 --output data/yucatan_lc.tif
+python fetch_worldcover.py --bbox -91.0 19.5 -90.0 20.5 --year 2020 --output data/yucatan_lc_2020.tif
+```
+
+`fetch_jrc_gsw.py` fetches JRC Global Surface Water (1984–2024) for hydrological
+connectivity analysis. The `occurrence` product (% of time a pixel held water)
+and `seasonality` (months/year) are most useful for identifying tidal corridors.
+
+```bash
+python fetch_jrc_gsw.py --center -90.5 20.0 --buffer-km 25 --output data/yucatan_water.tif
+python fetch_jrc_gsw.py --center -90.5 20.0 --product seasonality --output data/yucatan_seasonality.tif
+```
+
+Available JRC products: `occurrence`, `seasonality`, `recurrence`, `change`, `transitions`, `extent`.
+
 ### Human settlement data
 
 `fetch_ghsl.py` fetches Global Human Settlement Layer data (built-up area,
@@ -71,6 +96,24 @@ If the server does not support range reads, it downloads the global file
 
 Available epochs: 1975–2025 in 5-year steps.
 
+### Infrastructure barriers
+
+`fetch_osm_barriers.py` queries the Overpass API for physical features that may
+block landward mangrove migration: roads, seawalls, embankments/levees, dikes,
+and aquaculture ponds. Output is **GeoJSON** (not raster) since scoring will use
+distance-to-nearest-barrier rather than pixel values.
+
+```bash
+python fetch_osm_barriers.py --center -90.5 20.0 --buffer-km 25 --output data/yucatan_barriers.geojson
+python fetch_osm_barriers.py --bbox -91.0 19.5 -90.0 20.5 --output data/yucatan_barriers.geojson
+```
+
+Note: road coverage is excellent globally; levee/seawall coverage is good in
+developed regions but sparse in parts of coastal Southeast Asia and West Africa.
+Treat absence of levee features as data uncertainty, not confirmed absence.
+
+> **TODO:** Add Global Dam Watch for upstream dam/reservoir barriers.
+
 ### Visualisation
 
 ```bash
@@ -87,7 +130,10 @@ Run any script with `--help` for the full flag list.
 | `fetch_dem.py` | Orchestrator — selects DEM source, exposes CLI |
 | `fetch_copernicus.py` | Copernicus GLO-30/GLO-90 from AWS S3 (COG range reads) |
 | `fetch_inegi.py` | INEGI CEM 3.0 for Mexico via OGC WCS |
+| `fetch_worldcover.py` | ESA WorldCover 10 m land cover from AWS S3 (COG range reads) |
+| `fetch_jrc_gsw.py` | JRC Global Surface Water occurrence/seasonality from CloudFerro |
 | `fetch_ghsl.py` | GHSL built-up, urbanisation, population from JRC |
+| `fetch_osm_barriers.py` | OSM roads, seawalls, levees, aquaculture via Overpass API → GeoJSON |
 | `plot_dem.py` | Renders a DEM GeoTIFF as a colour hillshade terrain map |
 | `data/` | Fetched GeoTIFFs (not committed) |
 | `figures/` | Rendered map PNGs |
