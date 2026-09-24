@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>mango — AOI layer viewer</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+  <div id="map"></div>
+
+  <div id="panel">
+    <h1>mango</h1>
+    <p class="hint">Zoom in, then click a point on the coast to select an AOI.</p>
+
+    <label class="radius-control">
+      Radius (km)
+      <input id="radius-input" type="number" min="1" max="100" value="15">
+    </label>
+
+    <div id="layer-list"></div>
+
+    <div id="legend"></div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

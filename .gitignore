@@ -15,3 +15,4 @@ env/
 
 # Fetched data outputs (regenerable via fetch_*.py — large, AOI-specific)
 data/
+.webcache/

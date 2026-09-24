@@ -1,0 +1,172 @@
+html, body {
+  margin: 0;
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 14px;
+  color: #1a2b22;
+}
+
+#map {
+  position: absolute;
+  inset: 0;
+}
+
+#panel {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 1000;
+  width: 300px;
+  max-height: calc(100vh - 24px);
+  overflow-y: auto;
+  background: rgba(255, 255, 255, 0.96);
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  padding: 14px 16px;
+  box-sizing: border-box;
+}
+
+#panel h1 {
+  font-size: 16px;
+  margin: 0 0 4px;
+  color: #0f4d2e;
+}
+
+.hint {
+  font-size: 12px;
+  color: #566;
+  margin: 0 0 10px;
+}
+
+.radius-control {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  margin-bottom: 12px;
+}
+
+.radius-control input {
+  width: 60px;
+}
+
+.category {
+  border-top: 1px solid #e3e8e5;
+  padding: 8px 0;
+}
+
+.category:first-of-type {
+  border-top: none;
+}
+
+.category-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #789;
+  margin-bottom: 4px;
+}
+
+.layer-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 0;
+}
+
+.layer-row label {
+  flex: 1;
+  cursor: pointer;
+}
+
+.layer-row select {
+  font-size: 11px;
+  max-width: 90px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: transparent;
+}
+
+.status-dot.loading {
+  background: #e0a800;
+  animation: pulse 1s infinite ease-in-out;
+}
+
+.status-dot.error {
+  background: #d64545;
+  cursor: help;
+}
+
+.status-dot.ok {
+  background: #2e9e5b;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+#legend {
+  border-top: 1px solid #e3e8e5;
+  margin-top: 10px;
+  padding-top: 10px;
+}
+
+.legend-item {
+  margin-bottom: 10px;
+}
+
+.legend-item .legend-label {
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 3px;
+}
+
+.gradient-bar {
+  height: 10px;
+  border-radius: 3px;
+}
+
+.gradient-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: #567;
+}
+
+.swatch-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  margin: 2px 0;
+}
+
+.swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.zoom-toast {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(20, 30, 25, 0.9);
+  color: white;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  z-index: 1000;
+}
+
+.coverage-tooltip {
+  font-size: 12px;
+}
