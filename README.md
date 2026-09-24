@@ -17,6 +17,7 @@ Milestone 1 in progress: building a data pipeline for model development.
 | Elevation (DEM, Mexico) | INEGI CEM 3.0 (WCS) | ✅ (endpoint needs verification) |
 | Built-up area / urbanisation | GHSL R2023A (JRC) | ✅ |
 | Land cover | ESA WorldCover 10 m (AWS S3) | ✅ |
+| Land cover (near-real-time, alt.) | Dynamic World (Google Earth Engine) | ✅ (library only, no CLI) |
 | Surface water / hydrology | JRC Global Surface Water (CloudFerro) | ✅ |
 | Infrastructure barriers (roads, levees, seawalls, aquaculture) | OpenStreetMap (Overpass API) | ✅ |
 | Upstream dam/reservoir barriers | Global Dam Watch | TODO |
@@ -29,6 +30,15 @@ pip install -r requirements.txt
 
 **INEGI (Mexico DEM)** additionally requires verifying the WCS endpoint — see
 the docstring in `fetch_inegi.py` for instructions.
+
+**Dynamic World** additionally requires a one-time Earth Engine auth step:
+
+```bash
+python -c "import ee; ee.Authenticate()"
+```
+
+You'll also need a Google Cloud project with the Earth Engine API enabled,
+passed via `GEE_PROJECT` or the `project=` argument to `fetch()`.
 
 ## Usage
 
@@ -61,6 +71,19 @@ are the primary barriers to landward migration.
 ```bash
 python fetch_worldcover.py --center -90.5 20.0 --buffer-km 25 --output data/yucatan_lc.tif
 python fetch_worldcover.py --bbox -91.0 19.5 -90.0 20.5 --year 2020 --output data/yucatan_lc_2020.tif
+```
+
+`fetch_dynamic_world.py` fetches Dynamic World (Google/WRI) 10 m near-real-time
+land cover from Google Earth Engine as an alternative/complement to WorldCover.
+It has no CLI yet — call `fetch()` directly. Output is a 10-band GeoTIFF: 9
+mean class probabilities (`water`, `trees`, `grass`, `flooded_vegetation`,
+`crops`, `shrub_and_scrub`, `built`, `bare`, `snow_and_ice`) plus a mode label
+band. Requires a one-time `ee.Authenticate()` and a Google Cloud project with
+the Earth Engine API enabled (pass via `project=` or `GEE_PROJECT` env var).
+
+```python
+from fetch_dynamic_world import fetch
+fetch(-91.0, 19.5, -90.0, 20.5, output_path="data/yucatan_dw.tif")
 ```
 
 `fetch_jrc_gsw.py` fetches JRC Global Surface Water (1984–2024) for hydrological
@@ -131,9 +154,10 @@ Run any script with `--help` for the full flag list.
 | `fetch_copernicus.py` | Copernicus GLO-30/GLO-90 from AWS S3 (COG range reads) |
 | `fetch_inegi.py` | INEGI CEM 3.0 for Mexico via OGC WCS |
 | `fetch_worldcover.py` | ESA WorldCover 10 m land cover from AWS S3 (COG range reads) |
+| `fetch_dynamic_world.py` | Dynamic World 10 m near-real-time land cover via Google Earth Engine (library only, no CLI) |
 | `fetch_jrc_gsw.py` | JRC Global Surface Water occurrence/seasonality from CloudFerro |
 | `fetch_ghsl.py` | GHSL built-up, urbanisation, population from JRC |
 | `fetch_osm_barriers.py` | OSM roads, seawalls, levees, aquaculture via Overpass API → GeoJSON |
 | `plot_dem.py` | Renders a DEM GeoTIFF as a colour hillshade terrain map |
-| `data/` | Fetched GeoTIFFs (not committed) |
+| `data/` | Fetched GeoTIFFs/GeoJSON (currently committed — no `.gitignore` yet) |
 | `figures/` | Rendered map PNGs |
